@@ -1,0 +1,19 @@
+Objetivo Geral - O que o projeto pretende alcançar (Pode parecer que está repetindo o tema)
+Problemática - Apresentar o problema que será resolvido
+Objetivo Especifico - Detalhar cada conceito do projeto
+
+
+
+Atualmente, a maioria das ferramentas de reconhecimento e interpretação de expressões aritméticas a partir de imagens são proprietárias, o que impõe barreiras significativas para sua personalização e integração com novos sistemas. Essa limitação afeta especialmente desenvolvedores e pesquisadores que desejam incorporar tais funcionalidades em aplicações diversas, como plataformas de anotações, assistentes educacionais e ferramentas matemáticas interativas.
+
+Além disso, muitas dessas soluções comerciais operam como caixas-pretas, dificultando a auditoria dos processos de reconhecimento e interpretação, bem como a adaptação a necessidades específicas de diferentes usuários. A falta de um padrão aberto para essa tecnologia restringe sua acessibilidade e interoperabilidade, resultando em um ecossistema fragmentado e dependente de soluções fechadas.
+
+Diante desse cenário, surge a necessidade de uma abordagem padronizada e de código aberto que permita maior flexibilidade, integração e transparência na extração, interpretação e avaliação de expressões aritméticas. Essa problemática motiva o desenvolvimento de uma solução que elimine as barreiras impostas pelas ferramentas proprietárias, democratizando o acesso a essa tecnologia e ampliando suas possibilidades de aplicação.
+
+===================================================================================
+
+Atualmente, não há uma API de código aberto amplamente disponível para a extração, interpretação e solução passo a passo de expressões aritméticas manuscritas em imagens. As soluções existentes são majoritariamente proprietárias, o que impõe restrições significativas à sua personalização, integração e adoção em diferentes sistemas. Essa limitação afeta desenvolvedores, pesquisadores e educadores que buscam incorporar funcionalidades de reconhecimento de caracteres (OCR), processamento de linguagem natural (NLP) para formatação da entrada e autômatos de análise léxica para extração e avaliação de expressões matemáticas.
+
+Além disso, as ferramentas comerciais disponíveis operam como caixas-pretas, dificultando a transparência dos processos de reconhecimento e interpretação, bem como a adaptação a necessidades específicas. Sem uma API padronizada e aberta, a interoperabilidade entre diferentes plataformas é limitada, restringindo o desenvolvimento de aplicações inovadoras, como assistentes educacionais, plataformas de anotações e ferramentas matemáticas interativas.
+
+Diante desse cenário, torna-se essencial o desenvolvimento de uma API de código aberto que ofereça uma solução acessível, flexível e integrável. Essa abordagem visa democratizar o acesso à tecnologia, permitindo que diferentes sistemas utilizem uma base padronizada para a extração e avaliação de expressões aritméticas manuscritas, superando as barreiras impostas pelas soluções proprietárias.
