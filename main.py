@@ -1,75 +1,116 @@
+import gradio as gr
 import cv2
+import numpy as np
 import sympy as sp
 import locale
-import matplotlib.pyplot as plt
-from transformers import TrOCRProcessor, VisionEncoderDecoderModel, logging
+from PIL import Image
+from transformers import TrOCRProcessor, VisionEncoderDecoderModel
+from sympy.parsing.latex import parse_latex
 
 locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
-
-def extract_expression(image_path):
-    image = cv2.imread(image_path)
-    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    processor = TrOCRProcessor.from_pretrained("fhswf/TrOCR_Math_handwritten")
-    model = VisionEncoderDecoderModel.from_pretrained(
-        "fhswf/TrOCR_Math_handwritten"
-    ).to("cpu")
-    pixel_values = processor(images=image_rgb, return_tensors="pt").pixel_values
-    generated_ids = model.generate(pixel_values)
-    generated_formula = processor.batch_decode(generated_ids, skip_special_tokens=True)[
-        0
-    ]
-
-    return generated_formula, image_rgb  # Placeholder for OCR result
-
-
-def preprocess_expression(expression: str) -> str:
-    expression = expression.strip()
-    expression = expression.replace(" ", "")
-    expression = expression.split("=")[0]
-
-    return expression
+processor = TrOCRProcessor.from_pretrained("fhswf/TrOCR_Math_handwritten")
+model = VisionEncoderDecoderModel.from_pretrained("fhswf/TrOCR_Math_handwritten").to(
+    "cpu"
+)
 
 
 def evaluate_expression(expression):
     try:
-        sympy_exp = sp.sympify(expression)
+        sympy_exp = parse_latex(expression)
         result = sympy_exp.evalf()
-        return result
+
+        return sympy_exp, result
     except Exception as e:
-        return f"Error: {str(e)}"
+        return f"Erro: {str(e)}"
 
 
 def format_brazilian_number(number):
-    number = float(number)
-    if number.is_integer():
-        return f"{int(number):,}".replace(",", ".")  # 1234 -> 1.234
-    else:
-        formatted = f"{number:,.2f}"  # 1234.56 -> 1,234.56
-        return formatted.replace(",", "v").replace(".", ",").replace("v", ".")
+    try:
+        number = float(number)
+        if number.is_integer():
+            return f"{int(number):,}".replace(",", ".")
+        else:
+            formatted = f"{number:,.2f}"
+            return formatted.replace(",", "v").replace(".", ",").replace("v", ".")
+    except:
+        return str(number)
 
 
-def visualize(image_rgb, expression, result):
-    plt.imshow(image_rgb)
-    plt.axis("off")
-    plt.title(f"Extracted: {expression}\nResult: {format_brazilian_number(result)}")
-    plt.show()
+def predict_expression(source, sketch, uploaded_img):
+    # Escolhe a imagem correta
+    image = sketch if source == "Desenhar" else uploaded_img
+
+    if image is None:
+        return "Nenhuma imagem fornecida."
+
+    # Se for um dicionário (Sketchpad), extrai o array real
+    if isinstance(image, dict) and "composite" in image:
+        image = image["composite"]
+        image = np.array(image).astype(np.uint8)
+
+    pil_image = Image.fromarray(image)
+
+    # TrOCR + avaliação
+    pixel_values = processor(images=pil_image, return_tensors="pt").pixel_values
+    generated_ids = model.generate(pixel_values)
+    expression = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+
+    expression, result = evaluate_expression(expression)
+    formatted_result = format_brazilian_number(result)
+
+    return f"$${expression}$$", f"Resultado: {formatted_result}"
 
 
-def main():
-    image_path = "./numbers.png"  # <-- Replace with your image path
-    expression, image = extract_expression(image_path)
-    expression = preprocess_expression(expression)
+with gr.Blocks() as demo:
+    gr.Markdown("# 🧠 Reconhecimento de Expressões Matemáticas Escritas")
+    gr.Markdown("Escolha entre desenhar ou enviar uma imagem da expressão.")
 
-    if expression:
-        print(f"Extracted Expression: {expression}")
-        result = evaluate_expression(expression)
-        print(f"Evaluation Result: {result}")
-        visualize(image, expression, result)
-    else:
-        print("No valid arithmetic expression was found!")
+    with gr.Row():
+        source = gr.Radio(
+            ["Desenhar", "Imagem"], value="Desenhar", label="Fonte da expressão"
+        )
 
+    with gr.Row():
+        sketch = gr.Sketchpad(
+            image_mode="RGB",
+            brush=gr.Brush(colors=["#000000"]),
+            label="Desenhe a expressão",
+            canvas_size=(400, 200),
+            visible=True,
+        )
+        uploaded_img = gr.Image(
+            label="Envie uma imagem",
+            type="numpy",
+            visible=False,
+            value=Image.open("numbers.png"),
+        )
+
+    # Atualiza a visibilidade dos componentes com base na seleção
+    def update_source(source):
+        if source == "Desenhar":
+            sketch.visible = True
+            uploaded_img.visible = False
+        else:
+            sketch.visible = False
+            uploaded_img.visible = True
+
+        return gr.update(visible=sketch.visible), gr.update(
+            visible=uploaded_img.visible
+        )
+
+    source.change(
+        fn=update_source,
+        inputs=source,
+        outputs=[sketch, uploaded_img],
+    )
+
+    btn = gr.Button("Reconhecer e Resolver")
+    outputs = [gr.Markdown(label="Expressão"), gr.Textbox(label="Resultado")]
+
+    btn.click(
+        fn=predict_expression, inputs=[source, sketch, uploaded_img], outputs=outputs
+    )
 
 if __name__ == "__main__":
-    main()
+    demo.launch()
