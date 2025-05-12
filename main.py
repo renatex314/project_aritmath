@@ -1,34 +1,36 @@
 import cv2
-import pytesseract
 import sympy as sp
-import re
+import locale
 import matplotlib.pyplot as plt
+from transformers import TrOCRProcessor, VisionEncoderDecoderModel, logging
 
-# Path to Tesseract executable (only needed on Windows)
-# Uncomment and change path if you're using Windows
-# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
+
 
 def extract_expression(image_path):
     image = cv2.imread(image_path)
+    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-    # Preprocess image (optional, but improves accuracy)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    processor = TrOCRProcessor.from_pretrained("fhswf/TrOCR_Math_handwritten")
+    model = VisionEncoderDecoderModel.from_pretrained(
+        "fhswf/TrOCR_Math_handwritten"
+    ).to("cpu")
+    pixel_values = processor(images=image_rgb, return_tensors="pt").pixel_values
+    generated_ids = model.generate(pixel_values)
+    generated_formula = processor.batch_decode(generated_ids, skip_special_tokens=True)[
+        0
+    ]
 
-    # Custom config to whitelist arithmetic symbols
-    custom_config = r'-c tessedit_char_whitelist=0123456789+-*/().=X --psm 7'
+    return generated_formula, image_rgb  # Placeholder for OCR result
 
-    extracted_text = pytesseract.image_to_string(thresh, config=custom_config)
 
-    # Clean text
-    expression = extracted_text.strip().replace(' ', '').replace('\n', '')
+def preprocess_expression(expression: str) -> str:
+    expression = expression.strip()
+    expression = expression.replace(" ", "")
+    expression = expression.split("=")[0]
 
-    # Validate the expression using regex
-    pattern = re.compile(r'^[\d\+\-\*\/\(\)\=\.]+$')
-    if pattern.match(expression):
-        return expression, image
-    else:
-        return None, image
+    return expression
+
 
 def evaluate_expression(expression):
     try:
@@ -38,23 +40,36 @@ def evaluate_expression(expression):
     except Exception as e:
         return f"Error: {str(e)}"
 
-def visualize(image, expression, result):
-    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-    plt.axis('off')
-    plt.title(f'Extracted: {expression}\nResult: {result}')
+
+def format_brazilian_number(number):
+    number = float(number)
+    if number.is_integer():
+        return f"{int(number):,}".replace(",", ".")  # 1234 -> 1.234
+    else:
+        formatted = f"{number:,.2f}"  # 1234.56 -> 1,234.56
+        return formatted.replace(",", "v").replace(".", ",").replace("v", ".")
+
+
+def visualize(image_rgb, expression, result):
+    plt.imshow(image_rgb)
+    plt.axis("off")
+    plt.title(f"Extracted: {expression}\nResult: {format_brazilian_number(result)}")
     plt.show()
 
+
 def main():
-    image_path = 'numbers.png'  # <-- Replace with your image path
+    image_path = "./numbers.png"  # <-- Replace with your image path
     expression, image = extract_expression(image_path)
+    expression = preprocess_expression(expression)
 
     if expression:
-        print(f'Extracted Expression: {expression}')
+        print(f"Extracted Expression: {expression}")
         result = evaluate_expression(expression)
-        print(f'Evaluation Result: {result}')
+        print(f"Evaluation Result: {result}")
         visualize(image, expression, result)
     else:
-        print('No valid arithmetic expression was found!')
+        print("No valid arithmetic expression was found!")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
