@@ -7,8 +7,6 @@ from PIL import Image
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 from sympy.parsing.latex import parse_latex
 
-locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
-
 processor = TrOCRProcessor.from_pretrained("fhswf/TrOCR_Math_handwritten")
 model = VisionEncoderDecoderModel.from_pretrained("fhswf/TrOCR_Math_handwritten").to(
     "cpu"
@@ -148,9 +146,10 @@ with gr.Blocks() as demo:
             canvas_size=(400, 200),
             visible=True,
         )
-        uploaded_img = gr.Image(
+        uploaded_img = gr.ImageEditor(
             label="Envie uma imagem",
             type="numpy",
+            interactive=True,
             visible=False,
             value=Image.open("numbers.png"),
         )
