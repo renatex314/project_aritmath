@@ -1,63 +1,97 @@
-#!/usr/bin/env python3
-"""
-step_solve_latex.py
--------------------
-Solve a LaTeX arithmetic expression **step‑by‑step** (PEMDAS).
-
-Example
--------
-$ python step_solve_latex.py "\frac{2 + 3 \times 4}{2^{3} - 1}"
-Step 1: (2 + 3*4)/(2**3 - 1)
-Step 2: (2 + 12)/(2**3 - 1)
-Step 3: 14/(2**3 - 1)
-Step 4: 14/(8 - 1)
-Step 5: 14/7
-Step 6: 2
-"""
-
-# ── requirements ──────────────────────────────────────────────────────────────
-#   pip install "sympy>=1.12" antlr4-python3-runtime
-#   (antlr4 is required by sympy.parsing.latex)
-# ──────────────────────────────────────────────────────────────────────────────
+from sympy import *
 from sympy.parsing.latex import parse_latex
-from sympy import Pow, Mul, Add, simplify, preorder_traversal
-import sys
+import re
+
+init_printing()
 
 
-# -----------------------------------------------------------------------------
-def solve_latex_step_by_step(latex_expr: str):
-    """
-    Return a list of SymPy expressions, one for each PEMDAS evaluation step.
-    """
-    expr = parse_latex(latex_expr)
-    steps = [expr]  # original parsed expression
+# --- Highlighting function ---
+def highlight_latex(expr_latex, original, result):
+    original_latex = latex(original)
+    result_latex = r"\color{red}{" + latex(result) + "}"
+    pattern = re.escape(original_latex)
+    return re.sub(pattern, lambda m: result_latex, expr_latex, count=1)
 
-    # ── PEMDAS precedence (P handled implicitly by the tree) ──
-    precedence = [Pow, Mul, Add]  # E, MD, AS
 
-    for op in precedence:
-        changed = True
-        while changed:
-            changed = False
-            for sub in preorder_traversal(expr):  # <- use the function
-                if isinstance(sub, op) and all(a.is_number for a in sub.args):
-                    expr = expr.xreplace({sub: simplify(sub)})
-                    steps.append(expr)
-                    changed = True
-                    break
+# --- Expression helpers ---
+def is_evaluable(expr):
+    return not expr.is_Atom and expr.doit(deep=False) != expr
+
+
+def find_deepest_evaluable(expr):
+    for arg in expr.args:
+        result = find_deepest_evaluable(arg)
+        if result:
+            return result
+    if is_evaluable(expr):
+        return expr
+    return None
+
+
+def replace_once(expr, target, value):
+    if expr == target:
+        return value, True
+    if expr.args:
+        new_args = []
+        replaced = False
+        for arg in expr.args:
+            if replaced:
+                new_args.append(arg)
+            else:
+                new_arg, replaced = replace_once(arg, target, value)
+                new_args.append(new_arg)
+        return expr.func(*new_args, evaluate=False), replaced
+    return expr, False
+
+
+# --- Step-by-step generator ---
+def generate_steps(expr):
+    steps = []
+    current_expr = expr
+
+    while True:
+        target = find_deepest_evaluable(current_expr)
+        if not target:
+            break
+        result = target.doit(deep=False)
+        before_latex = latex(current_expr)
+        current_expr, _ = replace_once(current_expr, target, result)
+        highlighted = highlight_latex(before_latex, target, result)
+        steps.append(
+            {
+                "description": f"Simplified {latex(target)} to {latex(result)}",
+                "expression": highlighted,
+            }
+        )
+
+    steps.append({"description": "Final Result", "expression": latex(current_expr)})
     return steps
 
 
-# -----------------------------------------------------------------------------
-def main():
-    if len(sys.argv) != 2:
-        print("Usage: python step_solve_latex.py '<LaTeX‑expr>'")
-        sys.exit(1)
+# --- Safe parse and rebuild unevaluated expression ---
+def parse_latex_unevaluated(latex_str):
+    # Parse the expression first (evaluated)
+    parsed = parse_latex(latex_str)
 
-    latex_in = sys.argv[1]
-    for i, s in enumerate(solve_latex_step_by_step(latex_in), 1):
-        print(f"Step {i}: {s}")
+    def rebuild(expr):
+        if expr.is_Atom:
+            return expr
+        new_args = [rebuild(arg) for arg in expr.args]
+        return expr.func(*new_args, evaluate=False)
+
+    return rebuild(parsed)
 
 
+# --- MAIN ---
 if __name__ == "__main__":
-    main()
+    latex_input = r"\left(\frac{1 + 1}{2}\right)^2 + \left(\frac{2}{4}\right)^3"
+    expr = parse_latex_unevaluated(latex_input)
+
+    print("Parsed Expression:", expr)
+    print("Raw Structure:", srepr(expr))
+
+    steps = generate_steps(expr)
+
+    for i, step in enumerate(steps):
+        print(f"\nStep {i}: {step['description']}")
+        print(f"{step['expression']}")
