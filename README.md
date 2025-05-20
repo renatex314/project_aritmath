@@ -1,10 +1,11 @@
-# 🧠 Reconhecimento de Expressões Matemáticas Escritas
+# 📷 ARITMATH
 
-Este projeto tem como objetivo desenvolver um sistema interativo capaz de
-interpretar expressões aritméticas **manuscritas** a partir de imagens,
-utilizando uma combinação de **técnicas de Visão Computacional, OCR
-(Reconhecimento Óptico de Caracteres), Processamento de Linguagem Natural
-(NLP)** e **autômatos com expressões regulares**.
+<img src="doc/logo.jpeg" />
+
+**ARITMATH** é um sistema interativo capaz de interpretar expressões aritméticas
+**manuscritas** a partir de imagens, utilizando uma combinação de **técnicas de
+Visão Computacional, OCR (Reconhecimento Óptico de Caracteres), Processamento de
+Linguagem Natural (NLP)** e **autômatos com expressões regulares**.
 
 O sistema oferece uma interface simples via **Gradio**, permitindo ao usuário
 desenhar a expressão ou enviar uma imagem.
