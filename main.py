@@ -70,7 +70,6 @@ def aplicar_binarizacao(imagem: np.ndarray) -> np.ndarray:
 
 def evaluate_expression(expression):
     try:
-        print(f"Expressão: {expression}")
         sympy_exp = parse_latex(expression)
         result = sympy_exp.evalf()
 
@@ -92,7 +91,14 @@ def format_brazilian_number(number):
 
 
 def format_detected_expression(expression: str):
-    return expression.replace("...", "")
+    expression = expression.split("=")[0]
+
+    return (
+        expression.replace("...", "")
+        .replace("X", "*")
+        .replace("x", "*")
+        .replace(" ", "")
+    )
 
 
 def predict_expression(source, sketch, uploaded_img):
@@ -112,8 +118,6 @@ def predict_expression(source, sketch, uploaded_img):
     image = aplicar_binarizacao(image)
     pil_image = Image.fromarray(image)
 
-    cv2.imwrite("processed_image.png", image)
-
     # TrOCR + avaliação
     pixel_values = processor(images=pil_image, return_tensors="pt").pixel_values
     generated_ids = model.generate(pixel_values)
@@ -123,10 +127,18 @@ def predict_expression(source, sketch, uploaded_img):
 
     detected_expression = format_detected_expression(original_expression)
 
-    _, result = evaluate_expression(detected_expression)
-    formatted_result = format_brazilian_number(result)
+    try:
+        results = evaluate_expression(detected_expression)
+        formatted_result = format_brazilian_number(results[1])
 
-    return f"$${detected_expression}$$", f"Resultado: {formatted_result}"
+        return f"$${detected_expression}$$", f"Resultado: {formatted_result}"
+    except Exception as err:
+        print(f"Ocorreu um erro ao processar a expressão: {err}")
+
+        return (
+            "",
+            "Ocorreu um erro ao processar a expressão. Verifique se a expressão está legível e formatada",
+        )
 
 
 with gr.Blocks() as demo:
@@ -151,7 +163,7 @@ with gr.Blocks() as demo:
             type="numpy",
             interactive=True,
             visible=False,
-            value=Image.open("numbers.png"),
+            value=Image.open("sample.png"),
         )
 
     # Atualiza a visibilidade dos componentes com base na seleção
