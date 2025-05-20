@@ -64,7 +64,7 @@ pip install -r requirements.txt
 ### 4. Execute o sistema
 
 ```
-python app.py
+python main.py
 ```
 
 A aplicação estará rodando no endereço: http://127.0.0.1:7860
