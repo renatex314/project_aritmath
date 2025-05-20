@@ -1,6 +1,6 @@
 # 📷 ARITMATH
 
-<img src="doc/logo.jpeg" />
+<img src="doc/logo.png" />
 
 **ARITMATH** é um sistema interativo capaz de interpretar expressões aritméticas
 **manuscritas** a partir de imagens, utilizando uma combinação de **técnicas de
