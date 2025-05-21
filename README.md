@@ -20,7 +20,6 @@ desenhar a expressão ou enviar uma imagem.
 - 🔠 Reconhecimento de caracteres com
   [TrOCR](https://huggingface.co/fhswf/TrOCR_Math_handwritten).
 - 🧠 Interpretação da expressão com SymPy.
-- 🧾 Exibição do resultado com formatação brasileira.
 - ⚙️ Projeto modular e extensível com foco em **acessibilidade** e **integração
   com outros sistemas**.
 
