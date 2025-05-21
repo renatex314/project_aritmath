@@ -2,15 +2,20 @@ import gradio as gr
 import cv2
 import numpy as np
 import sympy as sp
-import locale
 from PIL import Image
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 from sympy.parsing.latex import parse_latex
 
-processor = TrOCRProcessor.from_pretrained("fhswf/TrOCR_Math_handwritten")
-model = VisionEncoderDecoderModel.from_pretrained("fhswf/TrOCR_Math_handwritten").to(
-    "cpu"
+processor = TrOCRProcessor.from_pretrained(
+    "fhswf/TrOCR_Math_handwritten",
+    cache_dir="./trocr_handwritten",
+    local_files_only=True,
 )
+model = VisionEncoderDecoderModel.from_pretrained(
+    "fhswf/TrOCR_Math_handwritten",
+    cache_dir="./trocr_handwritten",
+    local_files_only=True,
+).to("cpu")
 
 
 def remover_ruido(imagem: np.ndarray) -> np.ndarray:

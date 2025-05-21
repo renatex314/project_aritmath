@@ -61,7 +61,13 @@ venv\Scripts\activate      # Windows
 pip install -r requirements.txt
 ```
 
-### 4. Execute o sistema
+### 4. Execute o instalador do modelo TrOCR (Apenas pela primeira vez)
+
+```
+python model_downloader.py
+```
+
+### 5. Execute a aplicação
 
 ```
 python main.py
