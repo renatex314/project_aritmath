@@ -109,6 +109,7 @@ def format_detected_expression(expression: str):
 def predict_expression(source, sketch, uploaded_img):
     # Escolhe a imagem correta
     image = sketch if source == "Desenhar" else uploaded_img
+    upload_type = "sketch" if source == "Desenhar" else "image"
 
     if image is None:
         return "Nenhuma imagem fornecida."
@@ -118,9 +119,11 @@ def predict_expression(source, sketch, uploaded_img):
         image = image["composite"]
         image = np.array(image).astype(np.uint8)
 
-    image = remover_ruido(image)
-    image = corrigir_inclinacao(image)
-    image = aplicar_binarizacao(image)
+    if upload_type == "image":
+        image = remover_ruido(image)
+        image = corrigir_inclinacao(image)
+        image = aplicar_binarizacao(image)
+
     pil_image = Image.fromarray(image)
 
     # TrOCR + avaliação
