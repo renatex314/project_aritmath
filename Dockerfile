@@ -14,9 +14,8 @@ COPY nginx.conf /etc/nginx/nginx.conf
 COPY . .
 
 EXPOSE 80
-CMD [ \
-    "bash", "-c", \ 
-    "python", "/app/service1.py", "&", \
-    "python", "/app/service2.py", "&", \
-    "nginx", "-g", "'daemon off;'" \
-]
+
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+CMD ["/start.sh"]
