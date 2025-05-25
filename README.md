@@ -87,10 +87,14 @@ A aplicação estará rodando no endereço: http://127.0.0.1:8000
 ## 🧩 Estrutura do projeto
 
 ```
-├── app.py                 # Script principal com interface Gradio
-├── sample.png             # Imagem de exemplo usada por padrão
+├── doc                    # Pasta para armazenar arquivos de documentação
+├── api.py                 # API para reconhecimento de expressões (porta 8001)
+├── interface.py           # Serviço de interface Gradio (porta 8000)
+├── model_downloader.py    # Script para baixar o modelo TrOCR
+├── requirements.txt       # Dependências do projeto
 ├── README.md              # Este arquivo
-└── requirements.txt       # Dependências do projeto
+├── LICENSE                # Licença do projeto
+└── .gitignore             # Arquivos ignorados pelo Git
 ```
 
 ## 📜 Licença
