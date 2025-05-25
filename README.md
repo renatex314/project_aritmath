@@ -69,10 +69,11 @@ python model_downloader.py
 ### 5. Execute a aplicação
 
 ```
-python main.py
+python api.py (execute em background ou em outra janela do terminal)
+python interface.py (execute em background ou em outra janela do terminal)
 ```
 
-A aplicação estará rodando no endereço: http://127.0.0.1:7860
+A aplicação estará rodando no endereço: http://127.0.0.1:8000
 
 ## 🧪 Exemplo de Uso
 

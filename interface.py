@@ -24,13 +24,16 @@ def predict_expression_ui(source, sketch, uploaded_img):
     if response.status_code == 200:
         data = response.json()
 
-        return f'$${data.get("expression", "")}$$', f'Resultado: {data.get("result", "")}'
+        return (
+            f'$${data.get("expression", "")}$$',
+            f'Resultado: {data.get("result", "")}',
+        )
     else:
         return "", "Erro ao processar a expressão."
 
 
 with gr.Blocks() as demo:
-    gr.Markdown("# 🧠 Reconhecimento de Expressões Matemáticas Escritas")
+    gr.Markdown("# 📷 ARITMATH - Reconhecimento de Expressões Matemáticas Escritas")
     gr.Markdown("Escolha entre desenhar ou enviar uma imagem da expressão.")
 
     with gr.Row():
@@ -74,4 +77,6 @@ with gr.Blocks() as demo:
     )
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=8000, share=False, root_path="/gradio")
+    demo.launch(
+        server_name="0.0.0.0", server_port=8000, share=False, root_path="/gradio"
+    )
