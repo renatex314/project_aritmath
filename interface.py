@@ -2,7 +2,7 @@ import gradio as gr
 import requests
 import numpy as np
 
-API_URL = "http://localhost:8001/predict_expression"
+API_URL = "<service_domain>/predict_expression"
 
 
 def predict_expression_ui(source, sketch, uploaded_img):

@@ -1,0 +1,10 @@
+fastapi==0.115.12
+pydantic==2.11.4
+numpy==2.2.5
+opencv-python==4.11.0.86
+pillow==11.2.1
+transformers==4.51.3
+sympy==1.14.0
+antlr4-python3-runtime==4.11.0
+torch==2.7.0
+uvicorn==0.34.2
