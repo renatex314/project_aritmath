@@ -94,6 +94,8 @@ http://127.0.0.1:8000
 
 - Acesse pelo link da aplicação no navegador:
   [Aritmath](https://aritmathinterface-749533116403.us-west4.run.app)
+  <br> _OBS_: A aplicação pode demorar um pouco para reconhecer a expressão na
+  primeira tentativa.
 
 ---
 
