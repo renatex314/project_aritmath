@@ -111,7 +111,7 @@ http://127.0.0.1:8000
   [TrOCR](https://huggingface.co/microsoft/trocr-large-stage1) treinado com
   ajuste fino no dataset
   [mathwriting](https://github.com/google-research/google-research/tree/master/mathwriting).
-  Sendo assim, de acordo com a documentção do modelo, é esperado os seguintes
+  Sendo assim, de acordo com a documentação do modelo, é esperado os seguintes
   resultados:
 
   | Métrica                                   | Porcentagem |
