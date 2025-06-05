@@ -12,11 +12,13 @@ processor = TrOCRProcessor.from_pretrained(
     "fhswf/TrOCR_Math_handwritten",
     cache_dir="./trocr_handwritten",
     local_files_only=True,
+    device_map="cuda",
 )
 model = VisionEncoderDecoderModel.from_pretrained(
     "fhswf/TrOCR_Math_handwritten",
     cache_dir="./trocr_handwritten",
     local_files_only=True,
+    device_map="cuda",
 )
 
 # FastAPI app

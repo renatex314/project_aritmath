@@ -8,3 +8,4 @@ sympy==1.14.0
 antlr4-python3-runtime==4.11.0
 torch==2.7.0
 uvicorn==0.34.2
+accelerate
