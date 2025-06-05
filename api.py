@@ -17,7 +17,7 @@ model = VisionEncoderDecoderModel.from_pretrained(
     "fhswf/TrOCR_Math_handwritten",
     cache_dir="./trocr_handwritten",
     local_files_only=True,
-).to("cpu")
+)
 
 # FastAPI app
 app = FastAPI()
