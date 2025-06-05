@@ -1,8 +1,9 @@
+import numpy as np
+import cv2
+import torch
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import numpy as np
-import cv2
 from PIL import Image
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 from sympy.parsing.latex import parse_latex
@@ -106,9 +107,14 @@ def predict_expression(request: ExpressionRequest):
             # image = corrigir_inclinacao(image)
             image = aplicar_binarizacao(image)
 
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+
         pil_image = Image.fromarray(image)
-        pixel_values = processor(images=pil_image, return_tensors="pt").pixel_values
+        pixel_values = processor(images=pil_image, return_tensors="pt").pixel_values.to(
+            device
+        )
         generated_ids = model.generate(pixel_values)
+        model.to(device)
         original_expression = processor.batch_decode(
             generated_ids, skip_special_tokens=True
         )[0]
